@@ -1,25 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import { Navbar } from './components'
+import { HandleContext } from './hooks/getContext'
+import { HandleDropDown } from './hooks/getContext'
 
-function App() {
+import { Route, Routes, Navigate } from 'react-router-dom'
+import { Checkout, Contact, Signup, Home, ShopReview } from './pages'
+import { CartCartProvider } from './context/drop-menu'
+
+const App = () => {
+  const { currentUser } = HandleContext()
+  const { setDropCart } = HandleDropDown()
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <section className="px-5" onClick={() => setDropCart(false)}>
+      <CartCartProvider>
+        <Routes>
+          <Route path="/" element={<Navbar />}>
+            <Route index element={<Home />} />
+            <Route
+              path="/sign"
+              element={!currentUser ? <Signup /> : <Navigate to="/" replace />}
+            />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/shop/*" element={<ShopReview />} />
+            <Route
+              path="/checkout"
+              element={
+                currentUser ? <Checkout /> : <Navigate to="/sign" replace />
+              }
+            />
+          </Route>
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </CartCartProvider>
+    </section>
+  )
 }
 
-export default App;
+export default App
