@@ -36,9 +36,7 @@ const handleSubmit = async(e) => {
 
 const handleSubmitSignin = async(e) => {
   e.preventDefault()
-  // console.log({logemail, logpassword})
-  // setFOrmINput(FormField)
-
+ 
   await signInWithEmail({logemail, logpassword})
 
 }
@@ -48,7 +46,7 @@ const handleSubmitSignin = async(e) => {
 
   return (
     <div className="p-6 md:flex md:gap-5">
-      {/* sign up */}
+
       <div className='flex-auto '>
         <h1 className='text-center font-bold text-[green] text-2xl'>Sign Up With Email</h1> <br />
         <form className='space-y-5' onSubmit={handleSubmit}>
