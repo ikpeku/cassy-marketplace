@@ -1,5 +1,6 @@
 import React,{useState} from 'react'
 import { signInWithPop, createUserData , signInWithEmail, createUserWithEmail} from '../utils/firebase.utils.db'
+import { useNavigate , useLocation} from 'react-router-dom'
 
 
 const FormField = {
@@ -10,16 +11,21 @@ const FormField = {
   logpassword: ""
 }
 export const Signup = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const redirectPath = location.state?.path || "/"
 
 const [formInput, setFOrmINput] = useState(FormField)
 
 const {displayName, email, password, logemail, logpassword} = formInput
 
-
+  // console.log(redirectPath);
+  // console.log(location);
 
   const handleSignin = async () => {
     const response = await signInWithPop()
-    createUserData(response.user)
+    await createUserData(response.user)
+    // navigate(redirectPath, {replace: true})
   }
 
   const handleChange = (e) => {
@@ -38,6 +44,7 @@ const handleSubmitSignin = async(e) => {
   e.preventDefault()
  
   await signInWithEmail({logemail, logpassword})
+  // navigate(redirectPath, {replace: true})
 
 }
 

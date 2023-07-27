@@ -1,8 +1,4 @@
-import { createContext, useEffect, useState } from 'react'
-import products from '../components/ categories.json'
-// import { SHOP_DATA } from '../Shop_Data'
-// import { addColAndDoc } from '../utils/firebase.utils.db'
-
+import { createContext, useReducer } from 'react'
 
 export const productContext = createContext({
   allproduct: [],
@@ -50,58 +46,72 @@ const removeSelected = (cartItems, selecteditem) => {
 
   if (exists) {
     if (window.confirm('confirm to remove item from cart')) {
-        return cartItems.filter((item) => item.id !== selecteditem.id)
+      return cartItems.filter((item) => item.id !== selecteditem.id)
     } else {
-        return cartItems
+      return cartItems
     }
-
   }
 }
 
 export const ProductProvider = ({ children }) => {
-  const [allproduct, SetAllProducts] = useState(products)
-  const [cartItems, setCartItems] = useState([])
-  const [cartCount, setCartCount] = useState(0)
-  const [totalCart, setTotalCart] = useState(0)
-
-
-
   const addItemsToCart = (itemsToAdd) => {
-    setCartItems(itemsQuantity(cartItems, itemsToAdd))
+    const newItem = itemsQuantity(cartItems, itemsToAdd)
+    handleReducerLogic(newItem)
   }
 
   const removeFromCart = (itemToRemove) => {
-    setCartItems(itemsReduceQuantity(cartItems, itemToRemove))
+    const newItem = itemsReduceQuantity(cartItems, itemToRemove)
+    handleReducerLogic(newItem)
   }
 
   const removeAllitems = (itemsRemove) => {
-    setCartItems(removeSelected(cartItems, itemsRemove))
+    const newItem = removeSelected(cartItems, itemsRemove)
+    handleReducerLogic(newItem)
   }
 
-  useEffect(() => {
-    const total = cartItems.reduce((total, finalTotal) => {
+  const initialReducerValue = {
+    allproduct: [],
+    cartItems: [],
+    cartCount: 0,
+    totalCart: 0,
+  }
+
+  const cartReducer = (state, action) => {
+    const { type, payload } = action
+
+    switch (type) {
+      case 'CART_CRUD':
+        return { ...state, ...payload }
+
+      default:
+        throw new Error(`No action pass for ${type}`)
+    }
+  }
+
+  const [
+    { allproduct, cartCount, cartItems, totalCart },
+    dispatch,
+  ] = useReducer(cartReducer, initialReducerValue)
+
+  const handleReducerLogic = (newItem) => {
+    const totalCart = newItem.reduce((total, finalTotal) => {
       return total + finalTotal.quantity * finalTotal.price
     }, 0)
-    setTotalCart(total)
-  }, [cartItems])
 
-  useEffect(() => {
-    const picks = cartItems.reduce((lastcount, currentCount) => {
+    const cartCount = newItem.reduce((lastcount, currentCount) => {
       return lastcount + currentCount.quantity
     }, 0)
-    setCartCount(picks)
-  }, [cartItems])
 
-  // console.log(SHOP_DATA)
-
-
-
+    dispatch({
+      type: 'CART_CRUD',
+      payload: { cartItems: newItem, totalCart, cartCount },
+    })
+  }
 
   return (
     <productContext.Provider
       value={{
         allproduct,
-        SetAllProducts,
         addItemsToCart,
         cartItems,
         cartCount,
